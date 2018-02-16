@@ -14,7 +14,6 @@
  */
 class WPLib_Box_Support {
 
-	const AUTO_LOGIN_ACTION = 'auto-login';
 	const AUTO_LOGIN_PATH = '/auto-login';
 
 	/**
@@ -52,17 +51,11 @@ class WPLib_Box_Support {
 	static function _do_parse_request( $continue ) {
 		do {
 
-			$login_path = preg_quote( self::AUTO_LOGIN_PATH );
+			$home_url = preg_quote( home_url() );
 
-			$prefix = home_url() !== site_url()
-				? preg_quote( preg_replace( '#' . preg_quote( home_url() ) . '(.+)$#', '$1', site_url() ) )
-				: '';
+			$login_path = preg_replace( "#^{$home_url}(.+)$#", '$1', self::auto_login_url() );
 
-			if ( ! preg_match( "#{$prefix}{$login_path}/?\?_wpnonce=(.+)$#", $_SERVER['REQUEST_URI'], $match ) ) {
-				break;
-			}
-
-			if ( ! wp_verify_nonce( $match[ 1 ], self::AUTO_LOGIN_ACTION ) ) {
+			if ( $login_path !== rtrim( $_SERVER['REQUEST_URI'] , '/' ) ) {
 				break;
 			}
 
@@ -78,34 +71,58 @@ class WPLib_Box_Support {
 	 */
 	static function auto_login_admin() {
 
-		$user = get_user_by( 'login', 'admin' );
+		do {
 
-		if ( false === $user ) {
+			$user = get_user_by( 'login', 'admin' );
+
+			if ( isset( $user->ID ) ) {
+				break;
+			}
+
 			$user_id = wp_insert_user( array(
 				'user_login'    => 'admin',
 				'user_pass'     => 'password',
-				'user_nicename' => 'WPLib Box Administrator',
+				'user_nicename' => 'WPLib Box User',
+				'user_email'    => 'admin@wplib.box',
 				'user_url'      => 'https://wplib.github.io/wplib-box/',
 				'role'          => 'administrator',
-				'description'   => 'Default WPLib Box Administrator',
-			));
+				'description'   => 'Default WPLib Box User',
+			) );
+
+			if ( is_wp_error( $user_id ) ) {
+				break;
+			}
+
+			if ( ! is_numeric( $user_id ) ) {
+				break;
+			}
+
 			$user = get_user_by( 'id', $user_id );
+
+		} while ( false );
+
+		if ( isset( $user->ID ) ) {
+			wp_set_current_user( $user->ID );
+			wp_set_auth_cookie( $user->ID, true );
+			do_action( 'wp_login', 'admin', $user );
+			wp_safe_redirect( admin_url(), 302 );
+			exit;
 		}
-
-		wp_set_current_user( $user->ID );
-		wp_set_auth_cookie( $user->ID, true );
-		do_action( 'wp_login', $user->data->user_login );
-
-		wp_safe_redirect( admin_url(), 302 );
-		exit;
 
 	}
 
 	/**
 	 * @return string
 	 */
+	static function auto_login_url() {
+		return admin_url( self::AUTO_LOGIN_PATH );
+	}
+
+	/**
+	 * @return string
+	 */
 	static function _login_message( $message ) {
-		$auto_login = wp_nonce_url( site_url( self::AUTO_LOGIN_PATH ), self::AUTO_LOGIN_ACTION );
+		$auto_login = self::auto_login_url();
 		$html       = <<< HTML
 <style type="text/css">
 .wplib-box\:login-callout {margin-top:1em; font-size:2em;}

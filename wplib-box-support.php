@@ -21,6 +21,15 @@ class WPLib_Box_Support {
 	 */
 	static function on_load() {
 
+		add_action( 'init', array( __CLASS__, '_init_11' ), 11 );
+
+	}
+
+	/**
+	 *
+	 */
+	static function _init_11() {
+
 		if ( self::_can_auto_login() ) {
 			/**
 			 * ONLY run WPLib Box support plugin when WPLib Box is the host.

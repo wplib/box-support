@@ -21,7 +21,7 @@ class WPLib_Box_Support {
 	 */
 	static function on_load() {
 
-		if ( isset( $_SERVER[ 'WPLIB_BOX' ] ) ) {
+		if ( self::_can_auto_login() ) {
 			/**
 			 * ONLY run WPLib Box support plugin when WPLib Box is the host.
 			 */
@@ -29,6 +29,16 @@ class WPLib_Box_Support {
 			add_action( 'do_parse_request', array( __CLASS__, '_do_parse_request' ) );
 			add_action( 'set_url_scheme', array( __CLASS__, '_set_url_scheme' ) );
 		}
+
+	}
+
+	/**
+	 * Limits auto login support to only use in WPLib Box, unless the developer
+	 * uses the `'wplib:can_auto_login'` filter.
+	 */
+	static function _can_auto_login() {
+
+		return apply_filters( 'wplib:can_auto_login', isset( $_SERVER[ 'WPLIB_BOX' ] ) );
 
 	}
 

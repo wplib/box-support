@@ -162,7 +162,7 @@ class WPLib_Box_Support {
 <div class="wplib-box:login-helper">
 	<h2 class="wplib-box:login-callout">WPLib Box Users</h2>
 	<div class="inner">
-		<p>The <strong>default</strong> login credentials are:</p>
+		<p>The <strong>after login</strong> credentials will be:</p>
 		<ul>
 			<li><span class="name">Username:</span> <span class="value credentials">{$username}</span></li>
 			<li><span class="name">Password:</span> <span class="value credentials">{$password}</span></li>

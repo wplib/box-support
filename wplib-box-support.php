@@ -172,7 +172,7 @@ class WPLib_Box_Support {
 			<li><span class="name">Username:</span> <span class="value credentials">{$username}</span></li>
 			<li><span class="name">Password:</span> <span class="value credentials">{$password}</span></li>
 		</ul>
-		<p><a href="{$auto_login}"><strong>Click here</strong></a> to auto-login as <span class="credentials">{$username}</span>.</p>
+		<p><a href="{$auto_login}"><strong>Click here</strong></a><br>to auto-login as <span class="credentials">{$username}</span>.</p>
 	</div>
 </div>
 HTML;

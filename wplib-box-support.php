@@ -15,6 +15,8 @@
 class WPLib_Box_Support {
 
 	const AUTO_LOGIN_PATH = '/auto-login';
+	const DEFAULT_USERNAME = 'admin';
+	const DEFAULT_PASSWORD = 'password';
 
 	/**
 	 *
@@ -92,15 +94,17 @@ class WPLib_Box_Support {
 
 		do {
 
-			$user = get_user_by( 'login', 'admin' );
+			$username = apply_filters( 'wplib:auto_login_username', self::DEFAULT_USERNAME );
+
+			$user = get_user_by( 'login', $username );
 
 			if ( isset( $user->ID ) ) {
 				break;
 			}
 
 			$user_id = wp_insert_user( array(
-				'user_login'    => 'admin',
-				'user_pass'     => 'password',
+				'user_login'    => $username,
+				'user_pass'     => apply_filters( 'wplib:auto_login_password', self::DEFAULT_PASSWORD ),
 				'user_nicename' => 'WPLib Box User',
 				'user_email'    => 'admin@wplib.box',
 				'user_url'      => 'https://wplib.github.io/wplib-box/',
@@ -123,7 +127,7 @@ class WPLib_Box_Support {
 		if ( isset( $user->ID ) ) {
 			wp_set_current_user( $user->ID );
 			wp_set_auth_cookie( $user->ID, true );
-			do_action( 'wp_login', 'admin', $user );
+			do_action( 'wp_login', $username, $user );
 			wp_safe_redirect( admin_url(), 302 );
 			exit;
 		}
@@ -142,9 +146,10 @@ class WPLib_Box_Support {
 	 * @return string
 	 */
 	static function _login_message( $message ) {
+
 		$auto_login = self::auto_login_url();
-		$username = apply_filters( 'wplib:auto_login_username', 'admin' );
-		$password = apply_filters( 'wplib:auto_login_password', 'password' );
+		$username = apply_filters( 'wplib:auto_login_username', self::DEFAULT_USERNAME );
+		$password = apply_filters( 'wplib:auto_login_password', self::DEFAULT_PASSWORD );
 
 		$html       = <<< HTML
 <style type="text/css">
@@ -167,7 +172,7 @@ class WPLib_Box_Support {
 			<li><span class="name">Username:</span> <span class="value credentials">{$username}</span></li>
 			<li><span class="name">Password:</span> <span class="value credentials">{$password}</span></li>
 		</ul>
-		<p><a href="{$auto_login}"><strong>Click here</strong></a> to auto-login as <span class="credentials">admin</span>.</p>
+		<p><a href="{$auto_login}"><strong>Click here</strong></a> to auto-login as <span class="credentials">{$username}</span>.</p>
 	</div>
 </div>
 HTML;

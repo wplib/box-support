@@ -138,10 +138,14 @@ class WPLib_Box_Support {
 	}
 
 	/**
+	 * @param string $message
 	 * @return string
 	 */
 	static function _login_message( $message ) {
 		$auto_login = self::auto_login_url();
+		$username = apply_filters( 'wplib:auto_login_username', 'admin' );
+		$password = apply_filters( 'wplib:auto_login_password', 'password' );
+
 		$html       = <<< HTML
 <style type="text/css">
 .wplib-box\:login-callout {margin-top:1em; font-size:2em;}
@@ -160,8 +164,8 @@ class WPLib_Box_Support {
 	<div class="inner">
 		<p>The <strong>default</strong> login credentials are:</p>
 		<ul>
-			<li><span class="name">Username:</span> <span class="value credentials">admin</span></li>
-			<li><span class="name">Password:</span> <span class="value credentials">password</span></li>
+			<li><span class="name">Username:</span> <span class="value credentials">{$username}</span></li>
+			<li><span class="name">Password:</span> <span class="value credentials">{$password}</span></li>
 		</ul>
 		<p><a href="{$auto_login}"><strong>Click here</strong></a> to auto-login as <span class="credentials">admin</span>.</p>
 	</div>
@@ -171,6 +175,7 @@ HTML;
 		return "{$html}{$message}";
 
 	}
+
 
 }
 

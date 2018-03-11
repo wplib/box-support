@@ -15,6 +15,8 @@
 class WPLib_Box_Support {
 
 	const AUTO_LOGIN_PATH = '/auto-login';
+	const AUTO_LOGIN_EMAIL = 'admin@wplib.box';
+
 	const DEFAULT_USERNAME = 'admin';
 	const DEFAULT_PASSWORD = 'password';
 
@@ -94,19 +96,19 @@ class WPLib_Box_Support {
 
 		do {
 
-			$username = apply_filters( 'wplib:auto_login_username', self::DEFAULT_USERNAME );
-
-			$user = get_user_by( 'login', $username );
+			$user = get_user_by( 'email', self::AUTO_LOGIN_EMAIL );
 
 			if ( isset( $user->ID ) ) {
 				break;
 			}
 
+			$username = apply_filters( 'wplib:auto_login_username', self::DEFAULT_USERNAME );
+
 			$user_id = wp_insert_user( array(
 				'user_login'    => $username,
 				'user_pass'     => apply_filters( 'wplib:auto_login_password', self::DEFAULT_PASSWORD ),
 				'user_nicename' => 'WPLib Box User',
-				'user_email'    => 'admin@wplib.box',
+				'user_email'    => self::AUTO_LOGIN_EMAIL,
 				'user_url'      => 'https://wplib.github.io/wplib-box/',
 				'role'          => 'administrator',
 				'description'   => 'Default WPLib Box User',

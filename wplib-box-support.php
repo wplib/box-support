@@ -97,20 +97,37 @@ class WPLib_Box_Support {
 		do {
 
 			/**
-			 * Let's grab the username we plan to use: 'admin', or if modified.
+			 * Let's try the email address we plan to use: 'admin@wplib.box'
 			 */
-			$username = apply_filters( 'wplib:auto_login_username', self::DEFAULT_USERNAME );
+			$user = get_user_by( 'email', self::AUTO_LOGIN_EMAIL );
+
+			if ( isset( $user->ID ) ) {
+				/**
+				 * We found one, let's move on to auto-logging-in.
+				 */
+				break;
+			}
 
 			/**
-			 * Now let's lookup based on the user_login
+			 * Let's grab the username we plan to use: 'admin', or if modified.
+			 * Then let's lookup based on the user_login
 			 */
+			$username = apply_filters( 'wplib:auto_login_username', self::DEFAULT_USERNAME );
 			$user = get_user_by( 'login', $username );
 
-			if ( ! isset( $user->ID ) ) {
+			if ( isset( $user->roles ) ) {
+
+				if ( is_array( $user->roles ) && in_array( 'administrator', $user->roles ) ) {
+					/**
+					 * We found an administrator! Let's move on to auto-logging-in.
+					 */
+					break;
+				}
 				/**
-				 * If not, let's try the email address we plan to use: 'admin@wplib.box'
+				 * If we logged in but it's not an actual administrator (psych!) then
+				 * find the first administrator
 				 */
-			$user = get_user_by( 'email', self::AUTO_LOGIN_EMAIL );
+				$user = self::_login_as_first_admin();
 			}
 
 			if ( isset( $user->ID ) ) {
@@ -152,6 +169,35 @@ class WPLib_Box_Support {
 			wp_safe_redirect( admin_url(), 302 );
 			exit;
 		}
+
+	}
+
+	/**
+	 * Brute force login as the first admin, assuming we already
+	 * have an `admin` but they are not an administrator role.
+	 */
+	private static function _login_as_first_admin() {
+
+		for( $i = 1; $i < 1000; $i++ ) {
+			$user = get_user_by( 'id', $i );
+
+			if ( ! $user ) {
+				continue;
+			}
+			if ( ! isset( $user->roles[0] ) ) {
+				continue;
+			}
+			if ( 0 === count( $user->roles[0] ) ) {
+				continue;
+			}
+			if ( ! is_array( $user->roles ) ) {
+				continue;
+			}
+			if ( 'administrator' === $user->roles[0] ) {
+				break;
+			}
+		}
+		return $user;
 
 	}
 

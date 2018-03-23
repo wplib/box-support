@@ -74,9 +74,9 @@ class WPLib_Box_Support {
 	static function _do_parse_request( $continue ) {
 		do {
 
-			$home_url = preg_quote( home_url() );
+			$domain = preg_quote( parse_url( home_url(), PHP_URL_HOST ) );
 
-			$login_path = preg_replace( "#^{$home_url}(.+)$#", '$1', self::auto_login_url() );
+			$login_path = preg_replace( "#^https?://{$domain}(.+)$#", '$1', self::auto_login_url() );
 
 			if ( $login_path !== rtrim( $_SERVER['REQUEST_URI'] , '/' ) ) {
 				break;
@@ -96,14 +96,33 @@ class WPLib_Box_Support {
 
 		do {
 
+			/**
+			 * Let's grab the username we plan to use: 'admin', or if modified.
+			 */
+			$username = apply_filters( 'wplib:auto_login_username', self::DEFAULT_USERNAME );
+
+			/**
+			 * Now let's lookup based on the user_login
+			 */
+			$user = get_user_by( 'login', $username );
+
+			if ( ! isset( $user->ID ) ) {
+				/**
+				 * If not, let's try the email address we plan to use: 'admin@wplib.box'
+				 */
 			$user = get_user_by( 'email', self::AUTO_LOGIN_EMAIL );
+			}
 
 			if ( isset( $user->ID ) ) {
+				/**
+				 * We found a user so proceed to auto-login
+				 */
 				break;
 			}
 
-			$username = apply_filters( 'wplib:auto_login_username', self::DEFAULT_USERNAME );
-
+			/**
+			 * We did not find a user, let's add one
+			 */
 			$user_id = wp_insert_user( array(
 				'user_login'    => $username,
 				'user_pass'     => apply_filters( 'wplib:auto_login_password', self::DEFAULT_PASSWORD ),

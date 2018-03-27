@@ -14,7 +14,8 @@
  */
 class WPLib_Box_Support {
 
-	const AUTO_LOGIN_PATH = '/auto-login';
+	const AUTO_LOGIN_PARAM = 'auto-login';
+	const AUTO_LOGIN_VALUE = 'yes';
 	const AUTO_LOGIN_EMAIL = 'admin@wplib.box';
 
 	const DEFAULT_USERNAME = 'admin';
@@ -39,7 +40,7 @@ class WPLib_Box_Support {
 			 * ONLY run WPLib Box support plugin when WPLib Box is the host.
 			 */
 			add_action( 'login_message', array( __CLASS__, '_login_message' ) );
-			add_action( 'do_parse_request', array( __CLASS__, '_do_parse_request' ) );
+			add_action( 'wp_loaded', array( __CLASS__, '_wp_loaded' ) );
 			add_action( 'set_url_scheme', array( __CLASS__, '_set_url_scheme' ) );
 		}
 
@@ -67,18 +68,19 @@ class WPLib_Box_Support {
 	}
 
 	/**
-	 * @param bool $continue
-	 *
-	 * @return bool
+	 * Test to see if the auto-login URL is as we expect it to be.
 	 */
-	static function _do_parse_request( $continue ) {
+	static function _wp_loaded() {
 		do {
+			if ( ! is_admin() ) {
+				break;
+			}
 
-			$domain = preg_quote( parse_url( home_url(), PHP_URL_HOST ) );
+			if ( ! isset( $_GET[ self::AUTO_LOGIN_PARAM ] ) ) {
+				break;
+			}
 
-			$login_path = preg_replace( "#^https?://{$domain}(.+)$#", '$1', self::auto_login_url() );
-
-			if ( $login_path !== rtrim( $_SERVER['REQUEST_URI'] , '/' ) ) {
+			if ( self::AUTO_LOGIN_VALUE !== $_GET[ self::AUTO_LOGIN_PARAM ] ) {
 				break;
 			}
 
@@ -86,7 +88,6 @@ class WPLib_Box_Support {
 
 		} while ( false );
 
-		return $continue;
 	}
 
 	/**
@@ -205,7 +206,7 @@ class WPLib_Box_Support {
 	 * @return string
 	 */
 	static function auto_login_url() {
-		return admin_url( self::AUTO_LOGIN_PATH );
+		return admin_url( '?' . self::AUTO_LOGIN_PARAM . '=' . self::AUTO_LOGIN_VALUE );
 	}
 
 	/**

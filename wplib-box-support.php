@@ -62,8 +62,8 @@ class WPLib_Box_Support {
 	 * @return string
 	 */
 	static function _set_url_scheme( $url ) {
-		return defined( 'WPLIB_BOX_URL_SCHEME' )
-			? preg_replace( '#^https?#', WPLIB_BOX_URL_SCHEME, $url )
+		return defined( 'BOX_URL_SCHEME' )
+			? preg_replace( '#^https?#', BOX_URL_SCHEME, $url )
 			: $url;
 	}
 

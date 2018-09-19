@@ -97,6 +97,8 @@ class WPLib_Box_Support {
 
 		do {
 
+			$username = self::DEFAULT_USERNAME;
+
 			/**
 			 * Let's try the email address we plan to use: 'admin@wplib.box'
 			 */

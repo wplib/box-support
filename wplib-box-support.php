@@ -2,7 +2,7 @@
 
 /*
  * Plugin Name: WPLib Box Support Plugin
- * Plugin URL: https://github.com/wplib/wplib-box-support-plugin
+ * Plugin URL: https://github.com/wplib/box-support
  * Description: Plugin to provide UX support to WPLib Box
  * Version: 0.17.1
  * Author: The WPLib Team
@@ -21,9 +21,9 @@ class WPLib_Box_Support {
 	const DEFAULT_USERNAME = 'admin';
 	const DEFAULT_PASSWORD = 'password';
 
-	const SETTINGS_OPTION = 'wplib_box_support';
-	const SETTINGS_NONCE = 'wplib_box_support_settings';
-	const SETTINGS_FORM_FIELD = 'wplib_box_support';
+	const SETTINGS_OPTION = 'box_support';
+	const SETTINGS_NONCE = 'box_support_settings';
+	const SETTINGS_FORM_FIELD = 'box_support';
 	const SETTINGS_FIELDS = array(
 	    'external_base_uploads_url'
     );
@@ -55,7 +55,7 @@ class WPLib_Box_Support {
 		add_filter( 'wp_get_attachment_url', array( __CLASS__, '_wp_get_attachment_url_11' ), 11 );
 		add_filter( 'wp_calculate_image_srcset', array( __CLASS__, '_wp_calculate_image_srcset' ) );
 
-		self::$_plugin_label = __( 'WPLib Box Support', 'wplib-box-support' );
+		self::$_plugin_label = __( 'WPLib Box Support', 'box-support' );
 
 	}
 
@@ -77,7 +77,7 @@ class WPLib_Box_Support {
 
 	/**
 	 * Limits auto login support to only use in WPLib Box, unless the developer
-	 * uses the `'wplib_box_support:can_auto_login'` filter.
+	 * uses the `'box_support:can_auto_login'` filter.
 	 */
 	static function _can_auto_login() {
 
@@ -86,7 +86,7 @@ class WPLib_Box_Support {
 		 */
 		$can_auto_login = apply_filters( 'wplib:can_auto_login', isset( $_SERVER[ 'WPLIB_BOX' ] ) );
         
-		$can_auto_login = apply_filters( 'wplib_box_support:can_auto_login', $can_auto_login );
+		$can_auto_login = apply_filters( 'box_support:can_auto_login', $can_auto_login );
 		return $can_auto_login;
 
 	}
@@ -153,7 +153,7 @@ class WPLib_Box_Support {
              * @deprecated 'wplib:auto_login_username'  
 			 */
 			$username = apply_filters( 'wplib:auto_login_username', self::DEFAULT_USERNAME );
-			$username = apply_filters( 'wplib_box_support:auto_login_username', $username );
+			$username = apply_filters( 'box_support:auto_login_username', $username );
 
 			$user = get_user_by( 'login', $username );
 
@@ -185,7 +185,7 @@ class WPLib_Box_Support {
 			 */
 			$user_id = wp_insert_user( array(
 				'user_login'    => $username,
-				'user_pass'     => apply_filters( 'wplib_box_support:auto_login_password', apply_filters( 'wplib:auto_login_password', self::DEFAULT_PASSWORD ) ),
+				'user_pass'     => apply_filters( 'box_support:auto_login_password', apply_filters( 'wplib:auto_login_password', self::DEFAULT_PASSWORD ) ),
 				'user_nicename' => 'WPLib Box User',
 				'user_email'    => self::AUTO_LOGIN_EMAIL,
 				'user_url'      => 'https://wplib.github.io/wplib-box/',
@@ -265,8 +265,8 @@ class WPLib_Box_Support {
 		$username = apply_filters( 'wplib:auto_login_username', self::DEFAULT_USERNAME );
 		$password = apply_filters( 'wplib:auto_login_password', self::DEFAULT_PASSWORD );
 
-		$username = apply_filters( 'wplib_box_support:auto_login_username', $username );
-		$password = apply_filters( 'wplib_box_support:auto_login_password', $password );
+		$username = apply_filters( 'box_support:auto_login_username', $username );
+		$password = apply_filters( 'box_support:auto_login_password', $password );
 
 		$html       = <<< HTML
 <style type="text/css">
@@ -406,13 +406,13 @@ HTML;
 	 */
 	static function _admin_menu() {
 
-	    if ( apply_filters( 'wplib_box_support:do_add_admin_menu', true ) ) {
+	    if ( apply_filters( 'box_support:do_add_admin_menu', true ) ) {
 
 		    self::$_settings_page_hook = add_options_page(
 			    self::plugin_label(),
 			    self::plugin_label(),
-			    apply_filters( 'wplib_box_support:settings_menu_capability_required', 'manage_options' ),
-			    'wplib-box-support',
+			    apply_filters( 'box_support:settings_menu_capability_required', 'manage_options' ),
+			    'box-support',
 			    array( __CLASS__, 'the_settings_page' )
 		    );
 
@@ -424,7 +424,7 @@ HTML;
 	 * @return string
 	 */
 	static function plugin_label() {
-		return apply_filters( 'wplib_box_support:plugin_label', self::$_plugin_label );
+		return apply_filters( 'box_support:plugin_label', self::$_plugin_label );
 	}
 
 	/**
@@ -448,16 +448,16 @@ HTML;
                 <table class="form-table">
                     <tbody>
                     <tr>
-                        <th scope="row"><label for="external_base_uploads_url"><?php _e( 'External Images Base', 'wplib-box-support' ); ?></label>:</th>
+                        <th scope="row"><label for="external_base_uploads_url"><?php _e( 'External Images Base', 'box-support' ); ?></label>:</th>
                         <td><input name="<?php echo self::SETTINGS_FORM_FIELD; ?>[external_base_uploads_url]" type="text" id="external_base_uploads_url"
                                    value="<?php esc_attr_e( $settings->external_base_uploads_url ); ?>" aria-describedby="username-desc">
                             <div class="description" id="username-desc"><?php
-                                _e( 'This URL will be used as the base for any image URLs for which a image cannot be found in your local install. You can leave blank, or assign a URL for your uploads, e.g.:', 'wplib-box-support' );
+                                _e( 'This URL will be used as the base for any image URLs for which a image cannot be found in your local install. You can leave blank, or assign a URL for your uploads, e.g.:', 'box-support' );
                                 echo '<ul><li><pre>  &bull; <code>';
-                                _e( 'https://dev-example.pantheonsite.io/wp-content/uploads', 'wplib-box-support' );
+                                _e( 'https://dev-example.pantheonsite.io/wp-content/uploads', 'box-support' );
                                 echo '</code></pre></li></ul>';
                                 if ( self::was_setting_defaulted( 'external_base_uploads_url' ) ):
-                                    _e( "<strong><em>NOTE:</em></strong> The <code>BOX_EXTERNAL_BASE_UPLOADS_URL</code> constant provided the default value of the above URL. This constant was probably defined in <code>/wp-config.php</code>. Be aware that clicking the <em>\"Save Changes\"</em> button will clear this notice.", 'wplib-box-support' );
+                                    _e( "<strong><em>NOTE:</em></strong> The <code>BOX_EXTERNAL_BASE_UPLOADS_URL</code> constant provided the default value of the above URL. This constant was probably defined in <code>/wp-config.php</code>. Be aware that clicking the <em>\"Save Changes\"</em> button will clear this notice.", 'box-support' );
                                 endif;
                             ?></div>
                         </td>
@@ -466,7 +466,7 @@ HTML;
                 </table>
 
                 <p class="submit">
-                    <input type="submit" name="submit_settings" id="submit" class="button button-primary" value="<?php _e('Save Changes', 'wplib-box-support'); ?>">
+                    <input type="submit" name="submit_settings" id="submit" class="button button-primary" value="<?php _e('Save Changes', 'box-support'); ?>">
                 </p>
 
             </form>
@@ -482,7 +482,7 @@ HTML;
 	static function get_setting_value( $setting_name ) {
 		$settings = self::settings();
 		return apply_filters( 
-            'wplib_box_support:setting_value', 
+            'box_support:setting_value',
             ( isset( $settings->$setting_name ) ? $settings->$setting_name : null ),
 			$setting_name
         );
@@ -605,7 +605,7 @@ HTML;
 			    $settings[ $setting_name ] = self::get_setting_default( $setting_name );
 		    }
 		}
-		return apply_filters( 'wplib_box_support:settings', (object) $settings );
+		return apply_filters( 'box_support:settings', (object) $settings );
 	}
 
 	/**
@@ -635,7 +635,7 @@ HTML;
 			}
 
 			$updated = self::update_settings(
-				apply_filters( 'wplib_box_support:posted_settings', $posted_settings )
+				apply_filters( 'box_support:posted_settings', $posted_settings )
 			);
 
 		} while ( false );
@@ -655,7 +655,7 @@ HTML;
 			if ( ! $settings = self::sanitize_settings( $settings ) ) {
 				break;
 			}
-			if ( ! $settings = apply_filters( 'wplib_box_support:update_settings', (object) $settings ) ) {
+			if ( ! $settings = apply_filters( 'box_support:update_settings', (object) $settings ) ) {
 			    break;
 			}
 			$updated = update_option( self::SETTINGS_OPTION, (object) $settings );
@@ -681,7 +681,7 @@ HTML;
 
 		$settings[ 'external_base_uploads_url' ] = esc_url( $settings[ 'external_base_uploads_url' ] );
 
-		return apply_filters( 'wplib_box_support:sanitize_settings', (object) $settings );
+		return apply_filters( 'box_support:sanitize_settings', (object) $settings );
 
 	}
 	

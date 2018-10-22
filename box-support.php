@@ -55,7 +55,7 @@ class WPLib_Box_Support {
 		add_filter( 'wp_get_attachment_url', array( __CLASS__, '_wp_get_attachment_url_11' ), 11 );
 		add_filter( 'wp_calculate_image_srcset', array( __CLASS__, '_wp_calculate_image_srcset' ) );
 
-		self::$_plugin_label = __( 'WPLib Box Support', 'box-support' );
+		self::$_plugin_label = __( 'Box Support', 'box-support' );
 
 	}
 
@@ -438,9 +438,9 @@ HTML;
 		?>
         <style type="text/css">
             .wrap th,.wrap td,.wrap input[type=text]{font-size:1.1em;}
-            #external_base_uploads_url,.wrap .description{width:600px;}
+            #external_base_uploads_url,.wrap .description{width:600px;margin-bottom:1em;}
         </style>
-        <div class="wrap"><h1><?php echo self::plugin_label(); ?></h1>
+        <div class="wrap"><h1><?php echo self::plugin_label(); ?> <?php _e( 'for <a target="_blank" href="http://wplib.org/box/">WPLib Box</a>', 'box-support');?></h1>
             <form method="post">
 
                 <?php wp_nonce_field( self::SETTINGS_NONCE, '_wpnonce', $referrer = true, $echo = true ); ?>

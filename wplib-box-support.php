@@ -4,7 +4,7 @@
  * Plugin Name: WPLib Box Support Plugin
  * Plugin URL: https://github.com/wplib/wplib-box-support-plugin
  * Description: Plugin to provide UX support to WPLib Box
- * Version: 0.16.0-rc
+ * Version: 0.17.1
  * Author: The WPLib Team
  * Author URI: https://github.com/wplib
  */

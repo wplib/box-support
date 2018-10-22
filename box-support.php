@@ -452,7 +452,7 @@ HTML;
                         <td><input name="<?php echo self::SETTINGS_FORM_FIELD; ?>[external_base_uploads_url]" type="text" id="external_base_uploads_url"
                                    value="<?php esc_attr_e( $settings->external_base_uploads_url ); ?>" aria-describedby="username-desc">
                             <div class="description" id="username-desc"><?php
-                                _e( 'This URL will be used as the base for any image URLs for which a image cannot be found in your local install. You can leave blank, or assign a URL for your uploads, e.g.:', 'box-support' );
+                                _e( 'This URL will be used as the base for any image URLs for which an image cannot be found in your local install. You can leave blank, or assign a URL for your uploads, e.g.:', 'box-support' );
                                 echo '<ul><li><pre>  &bull; <code>';
                                 _e( 'https://dev-example.pantheonsite.io/wp-content/uploads', 'box-support' );
                                 echo '</code></pre></li></ul>';

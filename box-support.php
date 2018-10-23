@@ -2,7 +2,7 @@
 
 /*
  * Plugin Name: Box Support for WPLib Box
- * Plugin URL: https://github.com/wplib/box-support
+ * Plugin URI: https://github.com/wplib/box-support
  * Description: Plugin to provide WPLib Box users better support for local development.
  * Version: 0.17.1
  * Author: The WPLib Team

@@ -1,9 +1,9 @@
 <?php
 
 /*
- * Plugin Name: WPLib Box Support Plugin
+ * Plugin Name: Box Support for WPLib Box
  * Plugin URL: https://github.com/wplib/box-support
- * Description: Plugin to provide UX support to WPLib Box
+ * Description: Plugin to provide WPLib Box users better support for local development.
  * Version: 0.17.1
  * Author: The WPLib Team
  * Author URI: https://github.com/wplib
@@ -21,12 +21,14 @@ class WPLib_Box_Support {
 	const DEFAULT_USERNAME = 'admin';
 	const DEFAULT_PASSWORD = 'password';
 
+	const MENU_SLUG = 'box-support';
+
 	const SETTINGS_OPTION = 'box_support';
 	const SETTINGS_NONCE = 'box_support_settings';
 	const SETTINGS_FORM_FIELD = 'box_support';
 	const SETTINGS_FIELDS = array(
-	    'external_base_uploads_url'
-    );
+		'external_base_uploads_url'
+	);
 
 	/**
 	 * @var string
@@ -54,9 +56,22 @@ class WPLib_Box_Support {
 		add_action( 'admin_menu', array( __CLASS__, '_admin_menu' ) );
 		add_filter( 'wp_get_attachment_url', array( __CLASS__, '_wp_get_attachment_url_11' ), 11 );
 		add_filter( 'wp_calculate_image_srcset', array( __CLASS__, '_wp_calculate_image_srcset' ) );
+		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( __CLASS__, '_plugin_action_links' ) );
 
 		self::$_plugin_label = __( 'Box Support', 'box-support' );
 
+	}
+
+	/**
+	 * @param $links
+	 *
+	 * @return array
+	 */
+	static function _plugin_action_links( $links ) {
+		$url = admin_url( 'options-general.php?page=' . self::MENU_SLUG );
+		$link_text = __( 'Settings', 'box-support' );
+		$links[] = "<a href=\"{$url}\">{$link_text}</a>";
+		return $links;
 	}
 
 	/**
@@ -85,7 +100,7 @@ class WPLib_Box_Support {
 		 * @deprecated 'wplib:can_auto_login'
 		 */
 		$can_auto_login = apply_filters( 'wplib:can_auto_login', isset( $_SERVER[ 'WPLIB_BOX' ] ) );
-        
+
 		$can_auto_login = apply_filters( 'box_support:can_auto_login', $can_auto_login );
 		return $can_auto_login;
 
@@ -149,8 +164,8 @@ class WPLib_Box_Support {
 			/**
 			 * Let's grab the username we plan to use: 'admin', or if modified.
 			 * Then let's lookup based on the user_login
-             * 
-             * @deprecated 'wplib:auto_login_username'  
+			 *
+			 * @deprecated 'wplib:auto_login_username'
 			 */
 			$username = apply_filters( 'wplib:auto_login_username', self::DEFAULT_USERNAME );
 			$username = apply_filters( 'box_support:auto_login_username', $username );
@@ -406,17 +421,17 @@ HTML;
 	 */
 	static function _admin_menu() {
 
-	    if ( apply_filters( 'box_support:do_add_admin_menu', true ) ) {
+		if ( apply_filters( 'box_support:do_add_admin_menu', true ) ) {
 
-		    self::$_settings_page_hook = add_options_page(
-			    self::plugin_label(),
-			    self::plugin_label(),
-			    apply_filters( 'box_support:settings_menu_capability_required', 'manage_options' ),
-			    'box-support',
-			    array( __CLASS__, 'the_settings_page' )
-		    );
+			self::$_settings_page_hook = add_options_page(
+				self::plugin_label(),
+				self::plugin_label(),
+				apply_filters( 'box_support:settings_menu_capability_required', 'manage_options' ),
+				self::MENU_SLUG,
+				array( __CLASS__, 'the_settings_page' )
+			);
 
-	    }
+		}
 
 	}
 
@@ -443,7 +458,7 @@ HTML;
         <div class="wrap"><h1><?php echo self::plugin_label(); ?> <?php _e( 'for <a target="_blank" href="http://wplib.org/box/">WPLib Box</a>', 'box-support');?></h1>
             <form method="post">
 
-                <?php wp_nonce_field( self::SETTINGS_NONCE, '_wpnonce', $referrer = true, $echo = true ); ?>
+				<?php wp_nonce_field( self::SETTINGS_NONCE, '_wpnonce', $referrer = true, $echo = true ); ?>
 
                 <table class="form-table">
                     <tbody>
@@ -452,14 +467,14 @@ HTML;
                         <td><input name="<?php echo self::SETTINGS_FORM_FIELD; ?>[external_base_uploads_url]" type="text" id="external_base_uploads_url"
                                    value="<?php esc_attr_e( $settings->external_base_uploads_url ); ?>" aria-describedby="username-desc">
                             <div class="description" id="username-desc"><?php
-                                _e( 'This URL will be used as the base for any image URLs for which an image cannot be found in your local install. You can leave blank, or assign a URL for your uploads, e.g.:', 'box-support' );
-                                echo '<ul><li><pre>  &bull; <code>';
-                                _e( 'https://dev-example.pantheonsite.io/wp-content/uploads', 'box-support' );
-                                echo '</code></pre></li></ul>';
-                                if ( self::was_setting_defaulted( 'external_base_uploads_url' ) ):
-                                    _e( "<strong><em>NOTE:</em></strong> The <code>BOX_EXTERNAL_BASE_UPLOADS_URL</code> constant provided the default value of the above URL. This constant was probably defined in <code>/wp-config.php</code>. Be aware that clicking the <em>\"Save Changes\"</em> button will clear this notice.", 'box-support' );
-                                endif;
-                            ?></div>
+								_e( 'This URL will be used as the base for any image URLs for which an image cannot be found in your local install. You can leave blank, or assign a URL for your uploads, e.g.:', 'box-support' );
+								echo '<ul><li><pre>  &bull; <code>';
+								_e( 'https://dev-example.pantheonsite.io/wp-content/uploads', 'box-support' );
+								echo '</code></pre></li></ul>';
+								if ( self::was_setting_defaulted( 'external_base_uploads_url' ) ):
+									_e( "<strong><em>NOTE:</em></strong> The <code>BOX_EXTERNAL_BASE_UPLOADS_URL</code> constant provided the default value of the above URL. This constant was probably defined in <code>/wp-config.php</code>. Be aware that clicking the <em>\"Save Changes\"</em> button will clear this notice.", 'box-support' );
+								endif;
+								?></div>
                         </td>
                     </tr>
                     </tbody>
@@ -481,11 +496,11 @@ HTML;
 	 */
 	static function get_setting_value( $setting_name ) {
 		$settings = self::settings();
-		return apply_filters( 
-            'box_support:setting_value',
-            ( isset( $settings->$setting_name ) ? $settings->$setting_name : null ),
+		return apply_filters(
+			'box_support:setting_value',
+			( isset( $settings->$setting_name ) ? $settings->$setting_name : null ),
 			$setting_name
-        );
+		);
 	}
 
 	/**
@@ -497,87 +512,87 @@ HTML;
 	 *      will default $setting->external_base_uploads_url
 	 *      assuming $setting->external_base_uploads_url
 	 *      is null.
-     *
-     * @param string $setting_name
+	 *
+	 * @param string $setting_name
 	 * @return bool
 	 */
 	static function get_setting_default( $setting_name ) {
-	    do {
-	        $default_value = null;
-		    if ( ! defined( $constant_name = 'BOX_' . strtoupper( $setting_name ) ) ) {
-		        break;
-		    }
-		    if ( ! $value = constant( $constant_name ) ) {
-		        break;
-		    }
-		    $default_value = $value;
-	    } while ( false );
-	    return $default_value;
+		do {
+			$default_value = null;
+			if ( ! defined( $constant_name = 'BOX_' . strtoupper( $setting_name ) ) ) {
+				break;
+			}
+			if ( ! $value = constant( $constant_name ) ) {
+				break;
+			}
+			$default_value = $value;
+		} while ( false );
+		return $default_value;
 	}
 
 	/**
-     * Returns true if setting was defaulted by a BOX_* constant
-     *
+	 * Returns true if setting was defaulted by a BOX_* constant
+	 *
 	 * @return bool
 	 */
 	static function was_setting_defaulted( $setting_name ) {
-	    do {
-	        $was_defaulted = false;
-	        if ( ! defined( $constant_name = 'BOX_' . strtoupper( $setting_name ) ) ) {
-		        /**
-		         * The necessary constant does not exist
-		         */
-		        break;
-	        }
-		    if ( is_null( constant( $constant_name ) ) ) {
-			    /**
-			     * The necessary constant has a null value
-			     */
-			    break;
-		    }
+		do {
+			$was_defaulted = false;
+			if ( ! defined( $constant_name = 'BOX_' . strtoupper( $setting_name ) ) ) {
+				/**
+				 * The necessary constant does not exist
+				 */
+				break;
+			}
+			if ( is_null( constant( $constant_name ) ) ) {
+				/**
+				 * The necessary constant has a null value
+				 */
+				break;
+			}
 
-		    /**
-		     * We have a valid constant, so let's ASSUME it WAS defaulted.
-		     */
-            $was_defaulted = true;
+			/**
+			 * We have a valid constant, so let's ASSUME it WAS defaulted.
+			 */
+			$was_defaulted = true;
 
-		    /**
-		     * Get the settings from the DB.
-		     */
-            $settings = (array) get_option( self::SETTINGS_OPTION );
+			/**
+			 * Get the settings from the DB.
+			 */
+			$settings = (array) get_option( self::SETTINGS_OPTION );
 
-            if ( ! isset( $settings[ $setting_name ] ) ) {
-                /**
-                 * The setting does not exist it the DB, thus defaulted.
-                 */
-                break;
-            }
-		    if ( '' === $settings[ $setting_name ] ) {
-			    /**
-			     * The setting equals '', thus defaulted.
-			     */
-			    break;
-		    }
-		    if ( false === $settings[ $setting_name ] ) {
-			    /**
-			     * The setting equals false, thus defaulted.
-			     */
-			    break;
-		    }
-		    if ( is_null( $settings[ $setting_name ] ) ) {
-			    /**
-			     * The setting is null, thus defaulted.
-			     */
-			    break;
-		    }
-		    /**
-		     * The setting has a valid value, thus NOT defaulted.
-		     */
-		    $was_defaulted = false;
+			if ( ! isset( $settings[ $setting_name ] ) ) {
+				/**
+				 * The setting does not exist it the DB, thus defaulted.
+				 */
+				break;
+			}
+			if ( '' === $settings[ $setting_name ] ) {
+				/**
+				 * The setting equals '', thus defaulted.
+				 */
+				break;
+			}
+			if ( false === $settings[ $setting_name ] ) {
+				/**
+				 * The setting equals false, thus defaulted.
+				 */
+				break;
+			}
+			if ( is_null( $settings[ $setting_name ] ) ) {
+				/**
+				 * The setting is null, thus defaulted.
+				 */
+				break;
+			}
+			/**
+			 * The setting has a valid value, thus NOT defaulted.
+			 */
+			$was_defaulted = false;
 
-	    } while ( false );
+		} while ( false );
 
-	    return $was_defaulted;
+		return $was_defaulted;
 
 	}
 
@@ -601,9 +616,9 @@ HTML;
 		 */
 		foreach( self::SETTINGS_FIELDS as $setting_name ) {
 			$value = $settings[ $setting_name ];
-		    if ( is_null( $value ) || "" === $value ) {
-			    $settings[ $setting_name ] = self::get_setting_default( $setting_name );
-		    }
+			if ( is_null( $value ) || "" === $value ) {
+				$settings[ $setting_name ] = self::get_setting_default( $setting_name );
+			}
 		}
 		return apply_filters( 'box_support:settings', (object) $settings );
 	}
@@ -656,7 +671,7 @@ HTML;
 				break;
 			}
 			if ( ! $settings = apply_filters( 'box_support:update_settings', (object) $settings ) ) {
-			    break;
+				break;
 			}
 			$updated = update_option( self::SETTINGS_OPTION, (object) $settings );
 
@@ -675,7 +690,7 @@ HTML;
 	static function sanitize_settings( $settings ) {
 
 		$settings = wp_parse_args(
-            (array) $settings,
+			(array) $settings,
 			array_fill_keys( self::SETTINGS_FIELDS, null )
 		);
 
@@ -684,7 +699,7 @@ HTML;
 		return apply_filters( 'box_support:sanitize_settings', (object) $settings );
 
 	}
-	
+
 }
 
 WPLib_Box_Support::on_load();

@@ -4,7 +4,7 @@
  * Plugin Name: Box Support for WPLib Box
  * Plugin URI: https://github.com/wplib/box-support
  * Description: Plugin to provide WPLib Box users better support for local development.
- * Version: 0.17.1
+ * Version: 0.17.1.1
  * Author: The WPLib Team
  * Author URI: https://github.com/wplib
  */
@@ -445,46 +445,61 @@ HTML;
 	/**
 	 * Render the admin settings edit page.
 	 */
-	static function the_settings_page(){
+	static function the_settings_page() {
 
 		self::_update_settings_from_POST();
 
 		$settings = self::settings();
 		?>
         <style type="text/css">
-            .wrap th,.wrap td,.wrap input[type=text]{font-size:1.1em;}
-            #external_base_uploads_url,.wrap .description{width:600px;margin-bottom:1em;}
+            .wrap th, .wrap td, .wrap input[type=text] {
+                font-size: 1.1em;
+            }
+
+            #external_base_uploads_url, .wrap .description {
+                width: 600px;
+                margin-bottom: 1em;
+            }
         </style>
-        <div class="wrap"><h1><?php echo self::plugin_label(); ?> <?php _e( 'for <a target="_blank" href="http://wplib.org/box/">WPLib Box</a>', 'box-support');?></h1>
-            <form method="post">
+        <div class="wrap">
+        <h1><?php echo self::plugin_label(); ?><?php _e( 'for <a target="_blank" href="http://wplib.org/box/">WPLib Box</a>', 'box-support' ); ?></h1>
+        <form method="post">
 
-				<?php wp_nonce_field( self::SETTINGS_NONCE, '_wpnonce', $referrer = true, $echo = true ); ?>
+		<?php wp_nonce_field( self::SETTINGS_NONCE, '_wpnonce', $referrer = true, $echo = true ); ?>
 
-                <table class="form-table">
-                    <tbody>
-                    <tr>
-                        <th scope="row"><label for="external_base_uploads_url"><?php _e( 'External Images Base', 'box-support' ); ?></label>:</th>
-                        <td><input name="<?php echo self::SETTINGS_FORM_FIELD; ?>[external_base_uploads_url]" type="text" id="external_base_uploads_url"
-                                   value="<?php esc_attr_e( $settings->external_base_uploads_url ); ?>" aria-describedby="username-desc">
-                            <div class="description" id="username-desc"><?php
-								_e( 'This URL will be used as the base for any image URLs for which an image cannot be found in your local install. You can leave blank, or assign a URL for your uploads, e.g.:', 'box-support' );
-								echo '<ul><li><pre>  &bull; <code>';
-								_e( 'https://dev-example.pantheonsite.io/wp-content/uploads', 'box-support' );
-								echo '</code></pre></li></ul>';
-								if ( self::was_setting_defaulted( 'external_base_uploads_url' ) ):
-									_e( "<strong><em>NOTE:</em></strong> The <code>BOX_EXTERNAL_BASE_UPLOADS_URL</code> constant provided the default value of the above URL. This constant was probably defined in <code>/wp-config.php</code>. Be aware that clicking the <em>\"Save Changes\"</em> button will clear this notice.", 'box-support' );
-								endif;
-								?></div>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+        <table class="form-table">
+        <tbody>
+        <tr>
+        <th scope="row">
+            <label for="external_base_uploads_url"><?php _e( 'External Images Base', 'box-support' ); ?></label>:
+        </th>
+        <td>
+        <input name="<?php echo self::SETTINGS_FORM_FIELD; ?>[external_base_uploads_url]" type="text" id="external_base_uploads_url"
+               value="<?php esc_attr_e( $settings->external_base_uploads_url ); ?>" aria-describedby="username-desc">
+        <div class="description" id="username-desc"><?php
+            _e( 'This URL will be used as the base for any image URLs for which an image cannot be found in your local install. You can leave blank, or assign a URL for your uploads, e.g.:', 'box-support' );
+            echo '<ul><li><pre>  &bull; <code>';
+            _e( 'https://www.example.com/wp-content/uploads', 'box-support' );
+            echo '</code></pre></li></ul>';
+            if ( self::was_setting_defaulted( 'external_base_uploads_url' ) ):
+                _e( "<strong><em>NOTE:</em></strong> The <code>BOX_EXTERNAL_BASE_UPLOADS_URL</code> constant provided the default value of the above URL. This constant was probably defined in <code>/wp-config.php</code>. Be aware that clicking the <em>\"Save Changes\"</em> button will clear this notice.", 'box-support' );
+            elseif ( ! defined( 'BOX_EXTERNAL_BASE_UPLOADS_URL' ) ):
+                _e( "<strong><em>NOTE:</em></strong> You can set a <code>BOX_EXTERNAL_BASE_UPLOADS_URL</code> constant in <code>/wp-config.php</code> to allow you to commit a default URL to version control, if you like.", 'box-support' );
+            else:
+	            _e( "<strong><em>NOTE:</em></strong> You have a <code>BOX_EXTERNAL_BASE_UPLOADS_URL</code> constant defined, probably set in <code>/wp-config.php</code> that will provide a default value for this URL if you delete the existing value and click the <em>\"Save Changes\"</em> button. Just FYI.", 'box-support' );
+            endif;
+            ?>
+        </div>
+        </td>
+        </tr>
+        </tbody>
+        </table>
 
-                <p class="submit">
-                    <input type="submit" name="submit_settings" id="submit" class="button button-primary" value="<?php _e('Save Changes', 'box-support'); ?>">
-                </p>
+        <p class="submit">
+        <input type="submit" name="submit_settings" id="submit" class="button button-primary" value="<?php _e('Save Changes', 'box-support'); ?>">
+        </p>
 
-            </form>
+        </form>
         </div>
 		<?php
 

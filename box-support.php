@@ -4,7 +4,7 @@
  * Plugin Name: Box Support for WPLib Box
  * Plugin URI: https://github.com/wplib/box-support
  * Description: Plugin to provide WPLib Box users better support for local development.
- * Version: 0.17.1.1
+ * Version: 0.17.1.2
  * Author: The WPLib Team
  * Author URI: https://github.com/wplib
  */
@@ -59,6 +59,11 @@ class WPLib_Box_Support {
 		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( __CLASS__, '_plugin_action_links' ) );
 
 		self::$_plugin_label = __( 'Box Support', 'box-support' );
+
+		/**
+	     * Provide a listing of any plugins found in mu-plugins
+		 */
+		add_action( 'pre_current_active_plugins', array( __CLASS__, '_pre_current_active_plugins' ) );
 
 	}
 
@@ -714,6 +719,39 @@ HTML;
 		return apply_filters( 'box_support:sanitize_settings', (object) $settings );
 
 	}
+
+	/**
+     * Provide a listing of any plugins found in mu-plugins
+     *
+     * This will list the plugins in the description for the site-loader.php plugin, if it exists.
+     *
+	 * @param array $plugins
+	 */
+	static function _pre_current_active_plugins( $plugins ) {
+        global $wp_list_table;
+        do {
+            if ( ! isset( $wp_list_table->items[ 'site-loader.php' ] ) ) {
+                break;
+            }
+            $description = "This loads the following plugins:<ul>";
+            foreach( get_plugins( '/../mu-plugins' ) as $path => $plugin ) {
+                if ( false === strpos( $path, DIRECTORY_SEPARATOR ) ) {
+                    continue;
+                }
+                $url = isset( $plugin[ 'PluginURI' ] )
+                    ? esc_url( $plugin[ 'PluginURI' ] )
+                    : '#';
+                $name = isset( $plugin[ 'Name' ] )
+                    ? esc_html( $plugin[ 'Name' ] )
+                    : $path;
+                $version = ! empty( $plugin[ 'Version' ] )
+                    ? ' - ' . esc_html( $plugin[ 'Version' ] )
+                    : '';
+                $description .= "<li><a href=\"{$url}\">{$name}</a>{$version}</li>";
+            }
+            $wp_list_table->items[ 'site-loader.php' ][ 'Description' ] = "{$description}</ul>";
+        } while ( false );
+    }
 
 }
 
